@@ -1,0 +1,35 @@
+1. Linux 80211n csi tool done
+2. Configure hostapd
+   1) Download hostapd: http://w1.fi/releases/hostapd-2.0.tar.gz
+   2) sudo apt-get install libnl-dev libssl-dev
+   3) Modify hostapd: (i) hostapd-2.0/hostapd/src/ap: hw_features.c: function{ieee80211n_check_scan}: if(!oper40) -> if(0)
+                      (ii) cd hostapd-2.0/hostapd -> make clean
+                      (iii) vim hostapd-2.0/hostapd/deconfig -> cancle "#"s behind "CONFIG_DRIVER_NL80211=y" and "CONFIG_IEEE80211N=y" (support 802.11n)
+                      (iv) cp defconfig .config -> make
+   4) Configure hostapd: (i) interface=wlan0
+                         (ii) ssid=csitest
+                         (iii) own_ip_addr=192.168.1.1
+                         (iv) hw_mode=a(5G) / g(2.4G)
+                         (v) country_code=US
+                         (vi) channel=44, ieee80211n=1
+   5) vim /etc/NetworkManager/NetworkManager.conf: managed=ture, #dns=dnsmasq
+   6) iw list to check usable channel (iw phy): use iwleeprom to make chipset support 5G channels:
+                                                (i) git clone https://github.com/FyHaHa/iwleeprom
+                                                (ii) cd iwleeprom, make clean, sudo make
+                                                (iii) sudo ./iwleeprom –o test.b (save chipset params)
+                                                (iv) use Sublime to modify test.b as shown in Fig1, and save as change_test.b
+                                                (v) sudo ./iwleeprom –i change_test.b to rewrite chipset
+   7) install isc-dhcp-server: (i) sudo apt-get install isc-dhcp-server
+                               (ii) vim /etc/default/isc-dhcp-server -> INTERFACES="wlan0"
+                               (iii) vim /etc/dhcp/dhcpd.conf -> subnet 192.168.1.0 netmask 255.255.255.0 {
+                                                                   range 192.168.1.100 192.168.1.200;
+                                                                   option routers 192.168.1.1;
+                                                                   option broadcast-address 192.168.1.255;
+                                                                   default-lease-time 600;
+                                                                   max-lease-time 7200;
+                                                                 }
+  8) sudo ifconfig wlan0 10.5.5.1/24 up 
+     sudo dhcpd
+     sudo ./hostapd hostapd.conf
+     ./log_to_file test.dat && ping sta's IP -i
+                      
