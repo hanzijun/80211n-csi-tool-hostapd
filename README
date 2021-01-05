@@ -14,7 +14,7 @@
                          (vi) channel=44, ieee80211n=1
    5) vim /etc/NetworkManager/NetworkManager.conf: managed=ture, #dns=dnsmasq
    6) iw list to check usable channel (iw phy): use iwleeprom to make chipset support 5G channels:
-                                                (i) git clone https://github.com/FyHaHa/iwleeprom
+                                                (i) git clone https://github.com/hanzijun/iwleeprom
                                                 (ii) cd iwleeprom, make clean, sudo make
                                                 (iii) sudo ./iwleeprom –o test.b (save chipset params)
                                                 (iv) use Sublime to modify test.b as shown in Fig1, and save as change_test.b
